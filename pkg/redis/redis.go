@@ -110,8 +110,46 @@ func (r *Redis) Rpop(key string) *redis.StringCmd {
 	return r.connection.RPop(ctx, key)
 }
 
-func (r *Redis) Lrange(key string, from, until int) {
+func (r *Redis) Lrange(key string, from, until int) *redis.StringSliceCmd {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	return r.connection.LRange(ctx, key)
+	return r.connection.LRange(ctx, key, int64(from), int64(until))
+}
+
+func (r *Redis) Ltrim(key string, from, until int) *redis.StatusCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.LTrim(ctx, key, int64(from), int64(until))
+}
+
+// todo comments in this file
+func (r *Redis) BRPop(timeout int, keys []string) *redis.StringSliceCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.BRPop(ctx, time.Duration(timeout)*time.Second, keys...)
+}
+
+func (r *Redis) BLPop(timeout int, keys []string) *redis.StringSliceCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.BLPop(ctx, time.Duration(timeout)*time.Second, keys...)
+}
+
+// Hashes
+func (r *Redis) HGet(key, field string) *redis.StringCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.HGet(ctx, key, field)
+}
+
+func (r *Redis) HSet(key string, values ...any) *redis.IntCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.HSet(ctx, key, values)
+}
+
+func (r *Redis) HGetAll(key string) *redis.MapStringStringCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.HGetAll(ctx, key)
 }
