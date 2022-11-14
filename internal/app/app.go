@@ -16,13 +16,13 @@ func New() *App {
 	var app *App = new(App)
 
 	app.Version = "0.9.1"
-	app.Redis = redis.New("localhost:6379", "", 0)
+	app.Redis = redis.New("localhost:6389", "", 0)
 	return app
 }
 
 func (app *App) Run() error {
 	//Redis data types:
-	//1)Strings - simpliest type of value what can be associated with a Redis key
+	//1) Strings - simpliest type of value what can be associated with a Redis key
 	//setting value by key - set
 	_, err := app.Redis.Exec("set", "firstVar", 10)
 	if err != nil {
@@ -57,6 +57,12 @@ func (app *App) Run() error {
 	if err != nil {
 		return err
 	}
+	//getting ttl of tempVariable
+	ttl, err := app.Redis.Exec("ttl", "tempVariable", nil)
+	if err != nil {
+		return err
+	}
+	log.Println("ttl of tempVariable:", ttl)
 	//getting existing tempVariable
 	val = app.Redis.Get("tempVariable")
 	log.Println("tempVariable", val)
@@ -95,5 +101,15 @@ func (app *App) Run() error {
 	app.Redis.Set("intVar", 123, 0) //type is string
 	val, err = app.Redis.Exec("type", "intVar", nil)
 	log.Println("Getting type of int var", val)
+
+	//getting key list by pattern (here - *)
+	keys, err := app.Redis.Exec("keys", "*", nil)
+	if err != nil {
+		return err
+	}
+	log.Println("all keys", keys)
 	return nil
+
+	//3) Lists
+	//pushing a new element into a list at the head(left) - lpush
 }

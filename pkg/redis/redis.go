@@ -85,3 +85,33 @@ func (r *Redis) Exec(command, key string, value any) (any, error) {
 
 	return result, err
 }
+
+func (r *Redis) Lpush(key string, value any) *redis.IntCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.LPush(ctx, key, value)
+}
+
+func (r *Redis) Rpush(key string, value any) *redis.IntCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.RPush(ctx, key, value)
+}
+
+func (r *Redis) Lpop(key string) *redis.StringCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.LPop(ctx, key)
+}
+
+func (r *Redis) Rpop(key string) *redis.StringCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.RPop(ctx, key)
+}
+
+func (r *Redis) Lrange(key string, from, until int) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.LRange(ctx, key)
+}
