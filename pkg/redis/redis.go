@@ -11,6 +11,8 @@ type Redis struct {
 	connection *redis.Client
 }
 
+//todo сделать все методы похожими по неймнигу на команды редиса в гоу либе
+
 // New - новый экземпляр структуры Redis
 func New(addr, password string, db int) *Redis {
 	connection := redis.NewClient(&redis.Options{
@@ -63,7 +65,7 @@ func (r *Redis) MSet(keys []string, values []string) (*redis.StatusCmd, error) {
 	return r.connection.MSet(ctx, keysWithValues), nil
 }
 
-// Exec - для выполнения кастомных комман
+// Exec - для выполнения кастомных комман //todo переписать примеры убрав Exec
 func (r *Redis) Exec(command, key string, value any) (any, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
@@ -122,7 +124,7 @@ func (r *Redis) Ltrim(key string, from, until int) *redis.StatusCmd {
 	return r.connection.LTrim(ctx, key, int64(from), int64(until))
 }
 
-// todo comments in this file
+// todo comments in this file on methods and their args and return values
 func (r *Redis) BRPop(timeout int, keys []string) *redis.StringSliceCmd {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
@@ -152,4 +154,71 @@ func (r *Redis) HGetAll(key string) *redis.MapStringStringCmd {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	return r.connection.HGetAll(ctx, key)
+}
+
+func (r *Redis) HMGet(key string, fields ...string) *redis.SliceCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.HMGet(ctx, key, fields...)
+}
+
+func (r *Redis) HIncrBy(key, field string, incr int) *redis.IntCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.HIncrBy(ctx, key, field, int64(incr))
+}
+
+// Sets
+func (r *Redis) SAdd(key string, values ...string) *redis.IntCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.SAdd(ctx, key, values)
+}
+
+func (r *Redis) SMembers(key string) *redis.StringSliceCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.SMembers(ctx, key)
+}
+
+func (r *Redis) SIsMember(key, element string) *redis.BoolCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.SIsMember(ctx, key, element)
+}
+
+func (r *Redis) SInter(keys ...string) *redis.StringSliceCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.SInter(ctx, keys...)
+}
+
+func (r *Redis) SUnion(keys ...string) *redis.StringSliceCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.SUnion(ctx, keys...)
+}
+
+func (r *Redis) SDiff(keys ...string) *redis.StringSliceCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.SDiff(ctx, keys...)
+}
+
+func (r *Redis) SPop(key string) *redis.StringCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.SPop(ctx, key)
+}
+
+func (r *Redis) SUnionStore(destination string, keys ...string) *redis.IntCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.SUnionStore(ctx, destination, keys...)
+}
+
+func (r *Redis) SCard(key string) *redis.IntCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return r.connection.SCard(ctx, key)
 }

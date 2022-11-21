@@ -20,7 +20,7 @@ func New() *App {
 	return app
 }
 
-func (app *App) Run() error {
+func (app *App) Run() error { //todo разбить метод по секциям тутора
 	//Redis data types:
 	//1) Strings - simpliest type of value what can be associated with a Redis key
 	//setting value by key - set
@@ -157,14 +157,70 @@ func (app *App) Run() error {
 	//todo automatic creation and removal of keys
 
 	//-----------
-	//3) hashes -
-	// hset - sets multiple(o one) fields of the hash
+	//3) hashes - a set of field-value pairs stored in the database under a common key
+	// hset - sets multiple(or one) fields of the hash //todo another form
 	hSetResult := app.Redis.HSet("hashed", "one", "two", "free", 12)
-	log.Println("HSet result", hSetResult)
+	log.Println("HSet result: ", hSetResult)
 
-	// hget - gets values of set
-	hGetResult := app.Redis.HGet("hashed", "one")
-	log.Println("HGet result", hGetResult)
+	// hget - get a single of field hash
+	hGetResult := app.Redis.HGet("hashed", "free")
+	log.Println("HGet result: ", hGetResult)
 
+	// hgetall - gets all field-value pairs from hash as a map by key
+	hGetAllResult := app.Redis.HGetAll("hashed")
+	log.Println("HGetAll Result:", hGetAllResult)
+
+	// hmget - gets all values of the listed fields from hash by key (and listed fields)
+	_ = app.Redis.HSet("hashed", "another", "value")                            //setting another field-value pair for example
+	hMGetResult := app.Redis.HMGet("hashed", "one", "another", "no-such-filed") //no-such-filed - not exists - for example
+	log.Println("HMGet Result: ", hMGetResult)
+
+	// hincrby - performs increment(or decrement)
+	hIncrByResult := app.Redis.HIncrBy("hashed", "free", -1) //decr by 1 - result: 11
+	log.Print("HIncrBy result: ", hIncrByResult)
+
+	//------------
+	//4)sets - are unordered collections of strings
+	// sadd - adds new elements to a set
+	sAddResult := app.Redis.SAdd("my-set", "one", "two", "three", "four")
+	log.Println("SAdd result: ", sAddResult)
+
+	// smembers - returns all elements of a set
+	sMembersResult := app.Redis.SMembers("my-set")
+	log.Println("SMembers result", sMembersResult)
+
+	// sismember - checks the membership of element in set
+	sIsMemberResult := app.Redis.SIsMember("my-set", "two") //exists
+	log.Println("SIsMember result: ", sIsMemberResult)
+	sIsMemberResult = app.Redis.SIsMember("my-set", "five") //not exists
+	log.Println("SIsMember result: ", sIsMemberResult)      //todo do commands in lower case
+
+	app.Redis.SAdd("another-set", "one", "four", "five", "six") //setting another set for example
+	// sinter - intersection of sets
+	sInterResult := app.Redis.SInter("my-set", "another-set")
+	log.Println("sinter result: ", sInterResult)
+
+	// sunion - union of sets
+	sUnionResult := app.Redis.SUnion("my-set", "another-set")
+	log.Println("sunion result: ", sUnionResult)
+
+	// sdiff - differance of sets
+	sDiffResult := app.Redis.SDiff("my-set", "another-set")
+	log.Println("sdiff result: ", sDiffResult)
+	sDiffResult = app.Redis.SDiff("another-set", "my-set")
+	log.Println("sdiff result: ", sDiffResult)
+
+	// spop - removes a random element and returns it
+	sPopResult := app.Redis.SPop("my-set")
+	log.Println("spop result:", sPopResult)
+
+	// sunionstore - performs the union between multiple sets and stores the result into another set
+	sUnionStoreResult := app.Redis.SUnionStore("result-set", "my-set", "another-set")
+	log.Println("sunionstore result: ", sUnionStoreResult)
+	log.Println(app.Redis.SMembers("result-set")) //result of sunionstore //todo copy example
+
+	// scard - gets cardinality of a set. (number of elements)
+	sCardResult := app.Redis.SCard("result-set")
+	log.Println("scard result", sCardResult)
 	return nil
 }
